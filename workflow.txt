@@ -1,7 +1,25 @@
-Workflow 1
+Workflow 1(stakeholder view by Ammar Danish)
+    Actor: Event Stakeholder
+
+Objective: To publish a new event and allocate a budget for audience gathering.
+
+Step-by-Step Description:
+
+Login/Dashboard: The Stakeholder logs in and lands on the "Organizer Dashboard," which displays "Active Events," "Past Events," and "Create New Event."
+
+Initiate Event: User clicks "Create New Event."
+
+Input Details: The system presents a form requiring: Event Name, Date, Time, Venue Location, Expected Duration, and Description.
+
+Requirement Specification: User inputs the "Required Audience Count" (e.g., 50 students) and "Total Budget" (e.g., 5000 PKR).
+
+System Calculation: The system automatically calculates the "Per Student Payout" (Total Budget / Audience Count) - Platform Fee. The Stakeholder reviews this calculated rate.
+
+Submission: The Stakeholder clicks "Publish."
+
+Status Update: The event status becomes "Open," and it is immediately listed on the Student Dashboard.
+
+Workflow 2(by Nayab Dhanani)
 
 
-Workflow 2
-
-
-Workflow 3
+Workflow 3(by Muhammad Ali Khan)
