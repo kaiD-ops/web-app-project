@@ -46,3 +46,27 @@ Status: The event moves to the "My Scheduled Gigs" tab in the student's dashboar
 
 
 Workflow 3(by Muhammad Ali Khan)
+Verification & Payout Settlement (System/Admin View)
+Actor: System Admin / Logic
+
+Objective: To verify attendance and distribute the budget after the event.
+
+Step-by-Step Description:
+
+Event Monitoring: The System tracks the event time. Once the event end-time is reached, the status changes to "Awaiting Verification."
+
+Attendance Verification:
+
+The Admin accesses the "Attendance Manager" page.
+
+A list of registered students is displayed.
+
+Admin verifies physical presence (via roll call or checking IDs) and ticks the "Present" checkbox for attending students within a 30-minute window.
+
+Close Session: Admin clicks "Finalize Attendance."
+
+Payout Calculation: The system calculates the total amount to be disbursed based on actual attendees (not just registered ones).
+
+Disbursement: System updates the "Wallet Balance" of all verified students with the agreed hourly rate.
+
+Reporting: Stakeholder receives a "Utilization Report" showing how many students attended and the final budget used.
