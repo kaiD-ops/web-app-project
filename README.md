@@ -415,3 +415,8 @@ backend/
 | API Design & Routes | RESTful URL patterns, correct HTTP verbs, consistent JSON |
 | Database Integration | PostgreSQL via Prisma ORM, relational schema with enums |
 | Documentation | This README — all routes, request/response formats, setup guide |
+
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/d810008c-e9b5-4649-8066-abc0eb996400" />
+
+<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/318d36b9-ffe7-4f86-8c78-a4c64a1b8c71" />
+
