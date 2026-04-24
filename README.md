@@ -1,422 +1,111 @@
 # CrowdCoin — Audience Gathering Platform
 
-A web platform that connects **Event Stakeholders** with **Students**. Stakeholders post events and allocate budgets; students attend and get paid. The **Admin** manages approvals, attendance verification, and payment disbursement.
+A full-stack web platform that connects **Event Stakeholders** with **Students** at IBA Karachi. Stakeholders post events with budgets; students attend and get paid. The **Admin** manages approvals, attendance verification, and payment disbursement.
 
 ---
 
-## Tech Stack
+## Project Overview
 
-- **Runtime**: Node.js
-- **Framework**: Express.js
-- **Database**: PostgreSQL (Supabase)
-- **ORM**: Prisma
-- **Auth**: JWT (JSON Web Tokens)
-- **Password Hashing**: bcryptjs
+CrowdCoin solves a real problem: event organizers struggle to fill auditoriums, while students need flexible ways to earn money. The platform creates a transparent marketplace where:
+- **Stakeholders** create events and allocate budgets
+- **Students** browse events, confirm availability, and earn money for attending
+- **Admins** approve events, verify attendance, and disburse payments
 
 ---
 
-## Local Setup
+## Features
 
-### 1. Prerequisites
+### Student
+- Register with ERP ID and account details
+- Browse open events with payout info and fill rates
+- Register/cancel for events
+- My Gigs dashboard (upcoming & history)
+- Wallet with earnings summary
+
+### Stakeholder
+- Create events with sub-sessions and budget calculator
+- Auto-calculated payout per student (after 10% platform fee)
+- View registrations and payout summaries per event
+- Edit/delete pending events
+
+### Admin
+- Platform-wide stats dashboard
+- Approve/reject pending events
+- Attendance Manager — tick individual students present/absent
+- Bulk mark and finalize attendance with one-click payment disbursement
+- View all events with status filtering
+
+---
+
+## Frameworks & Libraries
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React (Vite) |
+| Routing | React Router DOM v6 |
+| HTTP Client | Axios |
+| Notifications | React Hot Toast |
+| Icons | Lucide React |
+| Backend | Express.js (Node.js) |
+| Database | PostgreSQL (Supabase) |
+| ORM | Prisma |
+| Auth | JWT + bcryptjs |
+
+---
+
+## Setup Steps
+
+### Prerequisites
 - Node.js v18+
-- A PostgreSQL database (we use [Supabase](https://supabase.com) — free tier works)
+- A Supabase account (free tier)
 
-### 2. Clone & Install
-
+### 1. Clone the repository
 ```bash
 git clone https://github.com/kaiD-ops/web-app-project.git
-cd web-app-project/backend
-npm install
+cd web-app-project
 ```
 
-### 3. Environment Variables
-
-Copy `.env.example` to `.env` and fill in your values:
-
-```bash
-cp .env.example .env
-```
-
-```env
-DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres"
-JWT_SECRET="your_secret_key_here"
-PORT=3000
-PLATFORM_FEE_PERCENT=10
-```
-
-### 4. Database Setup
-
-**Run the SQL migration in Supabase:**
-
-1. Go to your Supabase project → **SQL Editor**
-2. Open `backend/prisma/migrations/001_init/migration.sql`
-3. Paste the entire file contents and click **Run**
-4. This creates all tables + a default admin account
-
-**Optional — generate Prisma client locally:**
+### 2. Set up the Backend
 ```bash
 cd backend
-npm run db:generate
-npm run db:push
+cp .env.example .env
+# Fill in your DATABASE_URL, JWT_SECRET in .env
+npm install
+npx prisma generate
 ```
 
-### 5. Start the Server
+### 3. Set up the Database
+1. Go to Supabase → SQL Editor → New Query
+2. Paste the contents of `backend/prisma/migrations/001_init/migration.sql`
+3. Click Run — this creates all tables and a default admin account
 
+### 4. Start the Backend
 ```bash
-# Development (auto-reload)
 npm run dev
-
-# Production
-npm start
+# Backend runs at http://localhost:3000
 ```
 
-Server runs at: `http://localhost:3000`
+### 5. Set up the Frontend
+```bash
+cd ../frontend
+cp .env.example .env
+# VITE_API_URL=http://localhost:3000 (already set)
+npm install
+npm run dev
+# Frontend runs at http://localhost:5173
+```
+
+### Default Admin Account
+| Email | Password |
+|-------|----------|
+| admin@crowdcoin.iba.edu.pk | admin123 |
 
 ---
 
-## Default Test Accounts
+## Team Contributions
 
-After running the SQL migration:
-
-| Role        | Email                          | Password    |
-|-------------|-------------------------------|-------------|
-| Admin       | admin@crowdcoin.iba.edu.pk    | admin123    |
-
-Register additional Stakeholder and Student accounts via `POST /api/auth/register`.
-
----
-
-## API Reference
-
-All endpoints return JSON:
-```json
-{ "success": true, "message": "...", "data": {} }
-```
-
-Protected routes require:
-```
-Authorization: Bearer <your_jwt_token>
-```
-
----
-
-### Auth — `/api/auth`
-
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/api/auth/register` | Public | Register new user |
-| POST | `/api/auth/login` | Public | Login, receive JWT |
-| GET | `/api/auth/me` | All roles | Get current user |
-
-**POST `/api/auth/register` — Request Body:**
-```json
-{
-  "name": "Ali Khan",
-  "email": "ali@iba.edu.pk",
-  "password": "password123",
-  "role": "STUDENT",
-  "erpId": "12345",
-  "accountNumber": "PK36SCBL0000001123456702"
-}
-```
-- `role`: `STUDENT` | `STAKEHOLDER` | `ADMIN`
-- `erpId`: Required for STUDENT only (must be unique)
-
-**POST `/api/auth/login` — Request Body:**
-```json
-{ "email": "ali@iba.edu.pk", "password": "password123" }
-```
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "token": "eyJhbGci...",
-    "user": { "id": 1, "name": "Ali Khan", "role": "STUDENT" }
-  }
-}
-```
-
----
-
-### Events — `/api/events`
-
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| GET | `/api/events` | All roles | List all OPEN events |
-| GET | `/api/events/all` | Admin | List all events (any status) |
-| GET | `/api/events/my` | Stakeholder | List my events |
-| GET | `/api/events/:id` | All roles | Get single event |
-| POST | `/api/events` | Stakeholder | Create event |
-| PUT | `/api/events/:id` | Stakeholder | Update event |
-| DELETE | `/api/events/:id` | Stakeholder | Delete event |
-| PATCH | `/api/events/:id/approve` | Admin | Approve event (PENDING→OPEN) |
-| PATCH | `/api/events/:id/close` | Admin | Close for verification |
-| POST | `/api/events/:id/sub-events` | Stakeholder | Add sub-event/session |
-| PUT | `/api/events/sub-events/:subId` | Stakeholder | Update sub-event |
-| DELETE | `/api/events/sub-events/:subId` | Stakeholder | Delete sub-event |
-
-**POST `/api/events` — Request Body:**
-```json
-{
-  "title": "Leadership Summit 2025",
-  "description": "Annual leadership conference",
-  "date": "2025-03-15T09:00:00Z",
-  "duration": 180,
-  "venue": "IBA Main Auditorium",
-  "requiredStudents": 100,
-  "totalBudget": 10000,
-  "subEvents": [
-    {
-      "title": "Opening Keynote",
-      "startTime": "2025-03-15T09:00:00Z",
-      "endTime": "2025-03-15T10:00:00Z",
-      "speaker": "Dr. Farrukh Iqbal",
-      "description": "Welcome address"
-    }
-  ]
-}
-```
-*`payoutPerStudent` is auto-calculated: `(totalBudget - platformFee) / requiredStudents`*
-
-**Example Response:**
-```json
-{
-  "success": true,
-  "message": "Event created and pending approval",
-  "data": {
-    "id": 1,
-    "title": "Leadership Summit 2025",
-    "payoutPerStudent": 90,
-    "platformFee": 1000,
-    "status": "PENDING",
-    "subEvents": [...]
-  }
-}
-```
-
----
-
-### Registrations — `/api/registrations`
-
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/api/registrations` | Student | Register for an event |
-| GET | `/api/registrations/my-gigs` | Student | My gigs dashboard |
-| GET | `/api/registrations/event/:eventId` | Stakeholder/Admin | All registrations for event |
-| GET | `/api/registrations/:id` | All roles | Single registration |
-| DELETE | `/api/registrations/:eventId` | Student | Cancel registration |
-
-**POST `/api/registrations` — Request Body:**
-```json
-{ "eventId": 1 }
-```
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Successfully registered. You will be notified 1 hour and 10 minutes before.",
-  "data": {
-    "id": 5,
-    "status": "REGISTERED",
-    "event": { "title": "Leadership Summit 2025", "payoutPerStudent": 90, "venue": "IBA Main Auditorium" }
-  }
-}
-```
-
-**GET `/api/registrations/my-gigs` — Response:**
-```json
-{
-  "success": true,
-  "count": 3,
-  "data": [
-    {
-      "id": 5,
-      "status": "PAID",
-      "event": { "title": "Tech Talk", "date": "...", "payoutPerStudent": 90, "status": "COMPLETED" }
-    }
-  ]
-}
-```
-
----
-
-### Attendance & Payout — `/api/attendance`
-
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| GET | `/api/attendance/:eventId` | Admin | Get attendance sheet |
-| PATCH | `/api/attendance/:eventId/mark` | Admin | Mark one student present/absent |
-| POST | `/api/attendance/:eventId/bulk-mark` | Admin | Mark multiple students at once |
-| POST | `/api/attendance/:eventId/finalize` | Admin | Finalize & disburse payments |
-| GET | `/api/attendance/:eventId/payout-summary` | Admin/Stakeholder | Financial summary |
-
-**GET `/api/attendance/:eventId` — Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "event": {
-      "id": 1,
-      "title": "Tech Talk",
-      "registrations": [
-        { "student": { "name": "Ali Khan", "erpId": "12345" }, "status": "REGISTERED" }
-      ]
-    },
-    "summary": { "totalRegistered": 45, "totalAttended": 0, "totalAbsent": 0, "totalPaid": 0 }
-  }
-}
-```
-
-**PATCH `/api/attendance/:eventId/mark` — Request Body:**
-```json
-{ "studentId": 3, "isPresent": true }
-```
-
-**POST `/api/attendance/:eventId/bulk-mark` — Request Body:**
-```json
-{
-  "attendanceList": [
-    { "studentId": 3, "isPresent": true },
-    { "studentId": 4, "isPresent": false },
-    { "studentId": 5, "isPresent": true }
-  ]
-}
-```
-
-**POST `/api/attendance/:eventId/finalize` — Response:**
-```json
-{
-  "success": true,
-  "message": "Attendance finalized and payments disbursed successfully",
-  "data": {
-    "eventTitle": "Tech Talk: AI in Healthcare",
-    "totalAttended": 38,
-    "payoutPerStudent": 90,
-    "totalDisbursed": 3420,
-    "currency": "PKR"
-  }
-}
-```
-
-**GET `/api/attendance/:eventId/payout-summary` — Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "totalBudget": 5000,
-    "platformFee": 500,
-    "payoutPerStudent": 90,
-    "totalRegistered": 45,
-    "totalAttended": 38,
-    "totalPaid": 38,
-    "totalDisbursed": 3420,
-    "budgetUtilized": 3920,
-    "budgetRemaining": 1080,
-    "status": "COMPLETED"
-  }
-}
-```
-
----
-
-### Stats / Dashboard — `/api/stats`
-
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| GET | `/api/stats/admin` | Admin | Platform-wide statistics |
-| GET | `/api/stats/stakeholder` | Stakeholder | My events stats |
-| GET | `/api/stats/student` | Student | My earnings & gig stats |
-
-**GET `/api/stats/admin` — Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "overview": {
-      "totalUsers": 120,
-      "totalEvents": 15,
-      "totalRegistrations": 430,
-      "totalAmountDisbursed": 38700
-    },
-    "userBreakdown": { "STUDENT": 110, "STAKEHOLDER": 8, "ADMIN": 2 },
-    "eventBreakdown": { "OPEN": 3, "COMPLETED": 10, "PENDING": 2 },
-    "recentEvents": [...]
-  }
-}
-```
-
----
-
-## Workflow Summary
-
-### Workflow 1: Event Creation (Stakeholder)
-1. Stakeholder logs in → `POST /api/auth/login`
-2. Creates event with budget & headcount → `POST /api/events`
-3. Adds sub-events/sessions → `POST /api/events/:id/sub-events`
-4. Admin approves → `PATCH /api/events/:id/approve`
-5. Event goes live for students
-
-### Workflow 2: Student Registration
-1. Student registers account → `POST /api/auth/register`
-2. Browses open events → `GET /api/events`
-3. Confirms availability → `POST /api/registrations`
-4. Views upcoming gigs → `GET /api/registrations/my-gigs`
-5. Cancels if needed → `DELETE /api/registrations/:eventId`
-
-### Workflow 3: Attendance Verification & Payout
-1. Admin closes event → `PATCH /api/events/:id/close`
-2. Admin views attendance sheet → `GET /api/attendance/:eventId`
-3. Admin marks attendance → `POST /api/attendance/:eventId/bulk-mark`
-4. Admin finalizes & disburses → `POST /api/attendance/:eventId/finalize`
-5. Students' wallets credited, event marked COMPLETED
-
----
-
-## Project Structure
-
-```
-backend/
-├── server.js                        # App entry point
-├── .env.example                     # Environment variables template
-├── package.json
-├── prisma/
-│   ├── schema.prisma                # Database schema (all models)
-│   ├── seed.js                      # Seed script for test data
-│   └── migrations/
-│       └── 001_init/
-│           └── migration.sql        # Run this in Supabase SQL Editor
-└── src/
-    ├── prismaClient.js              # Prisma singleton instance
-    ├── middleware/
-    │   └── auth.js                  # JWT verification + role authorization
-    ├── routes/
-    │   ├── authRoutes.js            # /api/auth
-    │   ├── eventRoutes.js           # /api/events
-    │   ├── registrationRoutes.js    # /api/registrations
-    │   ├── attendanceRoutes.js      # /api/attendance
-    │   └── statsRoutes.js           # /api/stats
-    └── services/
-        ├── authService.js           # Register, login logic
-        ├── eventService.js          # Event + sub-event CRUD
-        ├── registrationService.js   # Student gig registration CRUD
-        ├── attendanceService.js     # Attendance marking + payout
-        └── statsService.js          # Dashboard statistics
-```
-
----
-
-## Grade Breakdown Coverage
-
-| Criterion | Implementation |
-|-----------|---------------|
-| Version Control | Feature branches per flow, meaningful commits, PRs merged to main |
-| Backend Implementation | Modular services + routes, 3 full CRUD flows |
-| API Design & Routes | RESTful URL patterns, correct HTTP verbs, consistent JSON |
-| Database Integration | PostgreSQL via Prisma ORM, relational schema with enums |
-| Documentation | This README — all routes, request/response formats, setup guide |
-
-<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/d810008c-e9b5-4649-8066-abc0eb996400" />
-
-<img width="1920" height="1008" alt="image" src="https://github.com/user-attachments/assets/318d36b9-ffe7-4f86-8c78-a4c64a1b8c71" />
-
+| Member | Role | Contributions |
+|--------|------|--------------|
+| Muhammad Ali Khan | Backend Lead | Attendance & payout service, admin routes, stats endpoints, database migration SQL, project setup and integration |
+| Ammar Danish | Stakeholder Flow | Event creation workflow, stakeholder dashboard, event management routes and service |
+| Nayab Dhanani | Student Flow | Student registration workflow, browse events page, my gigs dashboard, auth routes |
