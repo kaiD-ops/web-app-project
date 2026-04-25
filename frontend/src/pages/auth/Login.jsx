@@ -5,9 +5,9 @@ import { GraduationCap, Building2, Shield, Eye, EyeOff } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const roles = [
-  { id: 'STUDENT', label: 'Student', icon: GraduationCap, color: '#22c55e', desc: 'Browse and attend events' },
-  { id: 'STAKEHOLDER', label: 'Organizer', icon: Building2, color: '#6c63ff', desc: 'Create and manage events' },
-  { id: 'ADMIN', label: 'Admin', icon: Shield, color: '#f59e0b', desc: 'Manage platform operations' },
+  { id: 'STUDENT', label: 'Student', icon: GraduationCap, color: '#22c55e' },
+  { id: 'STAKEHOLDER', label: 'Organizer', icon: Building2, color: '#6c63ff' },
+  { id: 'ADMIN', label: 'Admin', icon: Shield, color: '#f59e0b' },
 ];
 
 const roleHome = {
@@ -40,9 +40,6 @@ export default function Login() {
     setLoading(true);
     try {
       const user = await login(form.email, form.password);
-      if (user.role !== selectedRole) {
-        toast.error(`This account is not a ${selectedRole.toLowerCase()}. Redirecting...`);
-      }
       toast.success(`Welcome back, ${user.name}!`);
       navigate(roleHome[user.role]);
     } catch (err) {
@@ -55,7 +52,6 @@ export default function Login() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, background: 'var(--bg-primary)' }}>
       <div style={{ width: '100%', maxWidth: 460 }}>
-        {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <Link to="/" style={{ fontSize: 28, fontWeight: 800 }}>
             Crowd<span style={{ color: 'var(--accent)' }}>Coin</span>
@@ -64,7 +60,6 @@ export default function Login() {
         </div>
 
         <div className="card" style={{ padding: 32 }}>
-          {/* Role selector */}
           <div style={{ marginBottom: 24 }}>
             <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 10 }}>Login as</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
